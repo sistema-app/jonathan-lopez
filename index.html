@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Portafolio | Jonathan Jair López González</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      background: radial-gradient(circle at center, #0a0f1f, #000000);
+      color: #e2e8f0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .glass {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    /* PROYECTOS */
+    .project-link {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #3b82f6;
+      transition: color 0.3s, transform 0.2s;
+      display: inline-block;
+    }
+    .project-link:hover {
+      color: #FFD700;
+      transform: scale(1.05);
+      cursor: pointer;
+    }
+
+    /* PDF FICHAS */
+    .pdf-card {
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      backdrop-filter: blur(6px);
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+      transition: transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out, backdrop-filter 0.3s, background 0.3s;
+      animation: float 4s ease-in-out infinite;
+      width: 100%;
+      max-width: 500px; 
+      height: 600px;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .pdf-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+      backdrop-filter: blur(3px);
+      background: rgba(255,255,255,0.25);
+    }
+    .pdf-card iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      pointer-events: auto;
+    }
+
+    /* DOCENCIA */
+    .doc-course {
+      position: relative; 
+      cursor: pointer;
+      z-index: 10;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .doc-course:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+    }
+    .doc-course h3 {
+      transition: opacity 0.3s;
+    }
+    .doc-course .tooltip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px);
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #e2e8f0;
+      font-size: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease-in-out;
+      z-index: 20;
+    }
+    .doc-course:hover .tooltip {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+function App() {
+  const [section, setSection] = useState("home");
+
+  useEffect(() => { 
+    initThree(); 
+  }, []);
+
+  return (
+    <div className="min-h-screen flex flex-col relative z-0">
+
+      {/* NAV */}
+      <nav className="flex justify-center gap-4 md:gap-6 p-4 glass fixed w-full top-0 z-50 flex-wrap">
+        {["home", "cv", "proyectos", "videos", "constancias", "docencia"].map(s => (
+          <button
+            key={s}
+            onClick={() => setSection(s)}
+            className={`text-sm md:text-base font-semibold transition ${section === s ? 'text-white border-b-2 border-blue-500' : 'text-blue-400 hover:text-blue-200'}`}
+          >
+            {s.toUpperCase()}
+          </button>
+        ))}
+      </nav>
+
+      {/* CONTENIDO */}
+      <main className="pt-28 px-4 md:px-6 pb-12 max-w-5xl mx-auto w-full flex-grow flex flex-col justify-center">
+
+        {/* HOME */}
+        {section === "home" && (
+          <section className="fade-in text-center">
+            <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-200">
+              Jonathan Jair López González
+            </h1>
+            <p className="mt-4 text-xl md:text-2xl text-gray-300 font-light">
+              Desarrollo Web ● Apps ● Bases de Datos ● Automatizaciones
+            </p>
+          </section>
+        )}
+
+        {/* CV */}
+        {section === "cv" && (
+          <section className="fade-in text-center flex flex-col items-center">
+            <h2 className="text-3xl text-blue-400 mb-6 font-semibold">Currículum</h2>
+            <div className="pdf-card mb-6">
+              <iframe src="CV_Jonathan Jair Lopez Gonzalez_2026.pdf" title="CV Jonathan"></iframe>
+            </div>
+            <a 
+              href="CV_Jonathan Jair Lopez Gonzalez_2026.pdf" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-semibold transition shadow-lg hover:shadow-blue-500/50"
+            >
+              Ver PDF en nueva pestaña
+            </a>
+          </section>
+        )}
+
+        {/* PROYECTOS */}
+        {section === "proyectos" && (
+          <section className="fade-in bg-slate-900/50 p-8 rounded-2xl border border-slate-700/50 backdrop-blur-sm">
+            <h2 className="text-3xl text-blue-400 mb-8 font-semibold text-center">Proyectos</h2>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="text-2xl text-blue-300 border-b border-blue-500/30 pb-2">Programación</h3>
+                <ul className="space-y-4 mt-4 list-disc list-inside text-gray-300">
+                  <li><a href="https://sistema-app.github.io/poo/" target="_blank" rel="noreferrer" className="project-link">POO</a></li>
+                  <li><a href="https://sistema-app.github.io/qt-css/" target="_blank" rel="noreferrer" className="project-link">Studio CSS for QT</a></li>
+                  <li><a href="https://sistema-app.github.io/login-macros/" target="_blank" rel="noreferrer" className="project-link">Simulador Login VBA</a></li>
+                  <li><a href="https://sistema-app.github.io/inventario/" target="_blank" rel="noreferrer" className="project-link">CRUD Inventario</a></li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-2xl text-blue-300 border-b border-blue-500/30 pb-2">Bases de Datos</h3>
+                <ul className="space-y-4 mt-4 list-disc list-inside text-gray-300">
+                  <li><a href="https://sistema-app.github.io/plataforma-interactiva/" target="_blank" rel="noreferrer" className="project-link">Plataforma MySQL</a></li>
+                  <li><a href="https://sistema-app.github.io/sql-simulator/" target="_blank" rel="noreferrer" className="project-link">SQL Simulator</a></li>
+                </ul>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* VIDEOS */}
+        {section === "videos" && (
+          <section className="fade-in flex flex-col items-center">
+            <h2 className="text-3xl text-blue-400 mb-8 font-semibold">Videos</h2>
+            <div className="w-full max-w-2xl flex flex-col gap-10">
+              <video controls className="w-full rounded-xl shadow-2xl border border-slate-700 bg-black" src="Memorama interactivo POO.mp4"></video>
+              <video controls className="w-full rounded-xl shadow-2xl border border-slate-700 bg-black" src="Quiz interactivo Python.mp4"></video>
+              <video controls className="w-full rounded-xl shadow-2xl border border-slate-700 bg-black" src="Hand tracking esfera.mp4"></video>
+            </div>
+          </section>
+        )}
+
+        {/* CONSTANCIAS */}
+        {section === "constancias" && (
+          <section className="fade-in">
+            <h2 className="text-3xl text-blue-400 mb-8 text-center font-semibold">Constancias</h2>
+            <div className="flex flex-col gap-8 items-center">
+              {[
+                "CONSTANCIA CREACIÓN CURSO BIG DATA.pdf",
+                "CONSTANCIA CREACIÓN BIG DATA AVANZADO.pdf",
+                "CONSTANCIA CREACIÓN SEMINARIO LDSW.pdf"
+              ].map((pdf, i) => (
+                <div key={i} className="flex flex-col items-center w-full">
+                  <div className="pdf-card mb-4">
+                    <iframe src={pdf} title={`Constancia ${i+1}`}></iframe>
+                  </div>
+                  <a 
+                    href={pdf} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition shadow-lg"
+                  >
+                    Ver PDF
+                  </a>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* DOCENCIA */}
+        {section === "docencia" && (
+          <section className="fade-in">
+            <h2 className="text-3xl text-blue-400 mb-4 text-center font-semibold">Docencia</h2>
+            <p className="mb-10 text-gray-300 text-center max-w-2xl mx-auto text-lg">
+              Experiencia en la impartición de clases presenciales, virtuales e híbridas enfocadas en tecnología y programación:
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { title: "Workshop Excel básico y Macros", desc: "Fórmulas, tablas dinámicas, grabación y programación de Macros para automatizar procesos." },
+                { title: "Workshop Python", desc: "Introducción al mundo de la programación con Python, lógica, estructuras de control y sintaxis." },
+                { title: "Python: Conexión con Bases de Datos", desc: "Conexión de apps de escritorio conectadas a servidores reales de bases de datos MySQL." },
+                { title: "Python: Análisis de datos", desc: "Uso de librerías de ciencia de datos como Pandas y Numpy para el análisis de datos." },
+                { title: "Máster Programación Básica", desc: "Programación de apps de escritorio a través de Visual Studio y Apache NetBeans usando POO (VB.NET, Java, C#)." },
+                { title: "Máster Programación Avanzada", desc: "Desarrollo de apps de escritorio con MySQL. Integración de procedimientos almacenados y disparadores." }
+              ].map((course, i) => (
+                <div key={i} className="doc-course glass p-8 rounded-xl flex items-center justify-center min-h-[160px] text-center border border-blue-500/20 bg-slate-800/40">
+                  <h3 className="text-xl font-semibold text-blue-100">{course.title}</h3>
+                  <div className="tooltip shadow-2xl">
+                    <p>{course.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+      </main>
+    </div>
+  );
+}
+
+/* THREE.JS CON MODELOS SECUENCIALES ÚNICOS Y PEQUEÑOS */
+function initThree() {
+  const canvas = document.getElementById("bg");
+  if (canvas.getAttribute('data-initialized') === 'true') return;
+  canvas.setAttribute('data-initialized', 'true');
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  camera.position.z = 12;
+  
+  // Iluminación para que los modelos 3D resalten
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+  scene.add(ambientLight);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  directionalLight.position.set(10, 20, 10);
+  scene.add(directionalLight);
+  
+  const group = new THREE.Group();
+  scene.add(group);
+
+  // CARGADOR DINÁMICO DE MODELOS GLB
+  const loader = new THREE.GLTFLoader();
+  const maxModelosPosibles = 20; // Buscará del 1.glb al 20.glb en la carpeta models/
+
+  for (let i = 1; i <= maxModelosPosibles; i++) {
+    const ruta = `models/${i}.glb`;
+    
+    loader.load(
+      ruta,
+      function (gltf) {
+        const modelo = gltf.scene;
+        
+        // ESCALA: Aquí controlas el tamaño. Lo bajé a 0.2 (antes era 0.5)
+        // Si aún los ves muy grandes, ponlo en 0.1 o 0.05
+        modelo.scale.set(0.2, 0.2, 0.2); 
+        
+        // Posicionarlos aleatoriamente en el espacio
+        modelo.position.set((Math.random()-0.5)*25,(Math.random()-0.5)*25,(Math.random()-0.5)*25);
+        
+        // Rotación inicial y variables para animarlos luego
+        modelo.rotation.set(Math.random()*Math.PI,Math.random()*Math.PI,Math.random()*Math.PI);
+        modelo.userData = {
+          rotSpeedX: (Math.random() - 0.5) * 0.02,
+          rotSpeedY: (Math.random() - 0.5) * 0.02
+        };
+
+        // Se agrega una sola vez, sin el bucle "for" que los clonaba
+        group.add(modelo);
+      },
+      undefined, 
+      function (error) {
+        // Ignorar silenciosamente si el archivo (ej. 5.glb) no existe
+      }
+    );
+  }
+  
+  let mouseX = 0; let mouseY = 0;
+  document.addEventListener("mousemove", (e)=>{ 
+    mouseX=(e.clientX/window.innerWidth-0.5)*2; 
+    mouseY=(e.clientY/window.innerHeight-0.5)*2; 
+  });
+
+  window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    
+    // Animar la rotación del grupo general con el mouse
+    group.rotation.y += 0.001 + mouseX*0.005;
+    group.rotation.x += 0.0005 + mouseY*0.005;
+
+    // Animar los modelos 3D de forma independiente
+    group.children.forEach(child => {
+      // Usamos userData para confirmar que es un modelo y aplicarle rotación
+      if(child.userData && child.userData.rotSpeedX) { 
+        child.rotation.x += child.userData.rotSpeedX;
+        child.rotation.y += child.userData.rotSpeedY;
+      }
+    });
+
+    renderer.render(scene,camera);
+  }
+  animate();
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
